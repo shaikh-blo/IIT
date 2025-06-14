@@ -57,9 +57,10 @@ public class SoilWaterBalanceSimulator {
                 tempSm -= uptake;
 
                 double excess = Math.max(0, tempSm - C);
-                double newSm = Math.min(tempSm, C);
+                double beforeGW = Math.min(tempSm, C);
+                double gw = gamma * beforeGW;
+                double newSm = beforeGW - gw;
 
-                double gw = gamma * newSm;
                 double totalDayRunoff = runoff + excess;
 
                 // Mass balance check
@@ -71,18 +72,18 @@ public class SoilWaterBalanceSimulator {
                 pw.printf(Locale.US, "%d,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.4f\n",
                         day, date, rain, totalDayRunoff, uptake, newSm, gw, error);
 
-                // Track totals
+                // Update totals
                 totalRain += rain;
                 totalRunoff += runoff;
                 totalExcess += excess;
                 totalUptake += uptake;
                 totalGW += gw;
 
-                // Update for next day
                 sm = newSm;
                 day++;
             }
 
+            // Final summary
             double finalBalance = sm + totalRunoff + totalExcess + totalUptake + totalGW;
             double overallError = totalRain - finalBalance;
 
@@ -113,5 +114,3 @@ public class SoilWaterBalanceSimulator {
         else return 0.7;
     }
 }
-
-
